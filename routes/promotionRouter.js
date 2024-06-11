@@ -1,6 +1,7 @@
 const express=require('express');
 const promotionRouter=express.Router();
 const Promotion=require('../models/promotion');
+const authenticate=require('../authenticate');
 
 promotionRouter.route('/')
 
@@ -13,7 +14,7 @@ promotionRouter.route('/')
     })
     .catch(err => next(err));//it will skip all of the non error middleware and show to error result.
 })
-.post((req,res,next)=>{
+.post(authenticate.verifyUser,(req,res,next)=>{
     Promotion.create(req.body)
     .then (promotion=>{
         console.log('Promotion created',promotion);
@@ -24,13 +25,13 @@ promotionRouter.route('/')
     .catch(err=>next(err));
 })
 
-.put((req,res)=>{
+.put(authenticate.verifyUser,(req,res)=>{
     res.statusCode=403;
     res.end('PUT operation is not supported on /promotions');
 
 })
 
-.delete((req,res,next)=>{
+.delete(authenticate.verifyUser,(req,res,next)=>{
     Promotion.deleteMany()
     .then(response=>{
         res.statusCode=200;
@@ -50,12 +51,12 @@ promotionRouter.route('/:promotionId')
     })
     .catch(err=>next(err));
 })
-.post((req,res)=>{
+.post(authenticate.verifyUser,(req,res)=>{
     res.statusCode=403;
     res.end(`POST operation is not supported on /promotions/ ${req.params.promotionId}`);
 })
 
-.put((req,res,next)=>{
+.put(authenticate.verifyUser,(req,res,next)=>{
     Promotion.findByIdAndUpdate(req.params.promotionId,{
         $set:req.body
     },{new:true})
@@ -69,7 +70,7 @@ promotionRouter.route('/:promotionId')
 })
 
 
-.delete((req,res,next)=>{
+.delete(authenticate.verifyUser,(req,res,next)=>{
     Promotion.findByIdAndDelete(req.params.promotionId)
     .then(response=>{
         res.statusCode=200;
